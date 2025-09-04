@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Logo Maker - Estilo Apple</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        #logoCanvas {
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group h3 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .background-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bg-option {
+            height: 35px;
+            border: 2px solid rgba(255,255,255,0.8);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bg-option.active {
+            border-color: #007AFF;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+        }
+
+        .color-picker-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .color-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .color-option.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .symbol-btn, .emoji-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .symbol-btn:active, .emoji-btn:active {
+            transform: scale(0.95);
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 10px;
+        }
+
+        .emoji-btn {
+            padding: 8px;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .size-slider {
+            width: 100%;
+            margin: 8px 0;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            outline: none;
+        }
+
+        .size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .export-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .export-btn, .clear-btn {
+            padding: 12px 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .export-btn:active, .clear-btn:active {
+            transform: scale(0.95);
+        }
+
+        .size-info {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .instructions {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid rgba(0, 122, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            color: #007AFF;
+            text-align: center;
+        }
+
+        /* Scrollbar personalizado */
+        .emoji-grid::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        /* Overlay para previsualización */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay img {
+            max-width: 80%;
+            max-height: 60%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .overlay-content {
+            color: white;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .overlay-button {
+            margin: 10px 5px;
+            padding: 12px 24px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .overlay-button.download {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍎 Logo Maker</h1>
+        <p>Crea logos increíbles al estilo Apple</p>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="logoCanvas" width="300" height="300"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="instructions">
+            💡 Toca los símbolos/emojis para añadir al centro, o toca el canvas para posicionar
+        </div>
+
+        <div class="control-group">
+            <h3>🎨 Fondo</h3>
+            <div class="background-options">
+                <div class="bg-option active" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" data-bg="gradient1"></div>
+                <div class="bg-option" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" data-bg="gradient2"></div>
+                <div class="bg-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" data-bg="gradient3"></div>
+                <div class="bg-option" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" data-bg="gradient4"></div>
+                <div class="bg-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" data-bg="gradient5"></div>
+                <div class="bg-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)" data-bg="gradient6"></div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>🌈 Colores</h3>
+            <div class="color-picker-container">
+                <div class="color-option active" style="background: #FF3B30" data-color="#FF3B30"></div>
+                <div class="color-option" style="background: #FF9500" data-color="#FF9500"></div>
+                <div class="color-option" style="background: #FFCC00" data-color="#FFCC00"></div>
+                <div class="color-option" style="background: #34C759" data-color="#34C759"></div>
+                <div class="color-option" style="background: #007AFF" data-color="#007AFF"></div>
+                <div class="color-option" style="background: #5856D6" data-color="#5856D6"></div>
+                <div class="color-option" style="background: #AF52DE" data-color="#AF52DE"></div>
+                <div class="color-option" style="background: #FF2D92" data-color="#FF2D92"></div>
+                <div class="color-option" style="background: #FFFFFF" data-color="#FFFFFF"></div>
+                <div class="color-option" style="background: #000000" data-color="#000000"></div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>🔸 Símbolos</h3>
+            <div class="symbol-grid">
+                <button class="symbol-btn" data-symbol="★">★</button>
+                <button class="symbol-btn" data-symbol="♦">♦</button>
+                <button class="symbol-btn" data-symbol="●">●</button>
+                <button class="symbol-btn" data-symbol="▲">▲</button>
+                <button class="symbol-btn" data-symbol="♥">♥</button>
+                <button class="symbol-btn" data-symbol="✦">✦</button>
+                <button class="symbol-btn" data-symbol="◆">◆</button>
+                <button class="symbol-btn" data-symbol="■">■</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>😊 Emojis</h3>
+            <div class="emoji-grid" id="emojiGrid">
+                <!-- Los emojis se llenarán con JavaScript -->
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>📏 Tamaño</h3>
+            <input type="range" class="size-slider" id="sizeSlider" min="15" max="120" value="60">
+            <div class="size-info">Tamaño: <span id="sizeValue">60</span>px</div>
+        </div>
+
+        <div class="export-controls">
+            <button class="export-btn" id="exportBtn">💾 Exportar</button>
+            <button class="clear-btn" id="clearBtn">🗑️ Limpiar</button>
+        </div>
+    </div>
+
+    <script>
+        class LogoMaker {
+            constructor() {
+                this.canvas = document.getElementById('logoCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.currentColor = '#FF3B30';
+                this.currentSize = 60;
+                this.elements = [];
+                this.backgroundGradient = 'gradient1';
+                this.lastSelectedSymbol = null;
+                
+                // Variables para manejar el escalado
+                this.canvasWidth = 300;
+                this.canvasHeight = 300;
+                
+                this.init();
+                this.setupEventListeners();
+                this.fillEmojiGrid();
+                this.drawBackground();
+                
+                // Configurar modo táctil por defecto al final
+                this.setPlacementMode('touch');
+            }
+
+            init() {
+                // Configurar el canvas con tamaño fijo
+                this.canvas.width = this.canvasWidth;
+                this.canvas.height = this.canvasHeight;
+                this.canvas.style.width = '300px';
+                this.canvas.style.height = '300px';
+                
+                this.drawBackground();
+            }
+
+            drawBackground() {
+                const gradients = {
+                    'gradient1': ['#ff9a9e', '#fecfef'],
+                    'gradient2': ['#667eea', '#764ba2'],
+                    'gradient3': ['#f093fb', '#f5576c'],
+                    'gradient4': ['#4facfe', '#00f2fe'],
+                    'gradient5': ['#43e97b', '#38f9d7'],
+                    'gradient6': ['#fa709a', '#fee140']
+                };
+
+                const colors = gradients[this.backgroundGradient];
+                const gradient = this.ctx.createLinearGradient(0, 0, this.canvasWidth, this.canvasHeight);
+                gradient.addColorStop(0, colors[0]);
+                gradient.addColorStop(1, colors[1]);
+
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+                // Redibujar elementos
+                this.redrawElements();
+            }
+
+            redrawElements() {
+                this.elements.forEach(element => {
+                    this.drawElement(element);
+                });
+            }
+
+            drawElement(element) {
+                this.ctx.save();
+                this.ctx.font = `${element.size}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+                this.ctx.fillStyle = element.color;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                
+                // Sombra estilo Apple
+                this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                this.ctx.shadowBlur = element.size * 0.15;
+                this.ctx.shadowOffsetX = element.size * 0.03;
+                this.ctx.shadowOffsetY = element.size * 0.03;
+                
+                this.ctx.fillText(element.symbol, element.x, element.y);
+                this.ctx.restore();
+            }
+
+            addElement(x, y, symbol) {
+                const element = {
+                    x: x,
+                    y: y,
+                    symbol: symbol,
+                    color: this.currentColor,
+                    size: this.currentSize
+                };
+                
+                this.elements.push(element);
+                this.drawElement(element);
+                
+                // Feedback táctil (vibración si está disponible)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                
+                // Efecto visual
+                this.canvas.classList.add('pulse');
+                setTimeout(() => this.canvas.classList.remove('pulse'), 300);
+            }
+
+            setupEventListeners() {
+                // Color selection
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentColor = e.target.dataset.color;
+                        
+                        // Vibración
+                        if (navigator.vibrate) navigator.vibrate(30);
+                    });
+                });
+
+                // Background selection
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        document.querySelectorAll('.bg-option').forEach(o => o.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.backgroundGradient = e.target.dataset.bg;
+                        this.drawBackground();
+                        
+                        if (navigator.vibrate) navigator.vibrate(30);
+                    });
+                });
+
+                // Symbol buttons
+                document.querySelectorAll('.symbol-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const symbol = e.target.dataset.symbol;
+                        this.lastSelectedSymbol = symbol;
+                        this.addElementToCenter(symbol);
+                    });
+                });
+
+                // Size slider
+                const sizeSlider = document.getElementById('sizeSlider');
+                const sizeValue = document.getElementById('sizeValue');
+                sizeSlider.addEventListener('input', (e) => {
+                    this.currentSize = parseInt(e.target.value);
+                    sizeValue.textContent = this.currentSize;
+                });
+
+                // Canvas events con coordenadas corregidas
+                this.canvas.addEventListener('click', (e) => {
+                    if (this.lastSelectedSymbol) {
+                        const rect = this.canvas.getBoundingClientRect();
+                        const scaleX = this.canvasWidth / rect.width;
+                        const scaleY = this.canvasHeight / rect.height;
+                        
+                        const x = (e.clientX - rect.left) * scaleX;
+                        const y = (e.clientY - rect.top) * scaleY;
+                        
+                        this.addElement(x, y, this.lastSelectedSymbol);
+                    }
+                });
+
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (this.lastSelectedSymbol) {
+                        const touch = e.touches[0];
+                        const rect = this.canvas.getBoundingClientRect();
+                        const scaleX = this.canvasWidth / rect.width;
+                        const scaleY = this.canvasHeight / rect.height;
+                        
+                        const x = (touch.clientX - rect.left) * scaleX;
+                        const y = (touch.clientY - rect.top) * scaleY;
+                        
+                        this.addElement(x, y, this.lastSelectedSymbol);
+                    }
+                });
+
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportLogo();
+                });
+
+                // Clear button
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearCanvas();
+                });
+            }
+
+            addElementToCenter(symbol) {
+                const centerX = this.canvasWidth / 2;
+                const centerY = this.canvasHeight / 2;
+                this.addElement(centerX, centerY, symbol);
+            }
+
+            fillEmojiGrid() {
+                const emojis = [
+                    '😀', '😃', '😄', '😆', '😊', '😍', '🥰', '😘', '😋', '😎',
+                    '🤩', '🥳', '😇', '🙂', '😉', '😌', '😚', '🤗', '🤔', '🤨',
+                    '😐', '😑', '😶', '🙄', '😏', '😣', '😥', '😮', '🤐', '😯',
+                    '😴', '🥱', '😪', '😵', '🤯', '🥴', '😷', '🤒', '🤕', '🤢',
+                    '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💯',
+                    '💥', '✨', '⭐', '🌟', '🔥', '💦', '🌈', '☀️', '🌙', '⚡',
+                    '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🎯', '🎪', '🎨', '🎭',
+                    '🚀', '✈️', '🚗', '🏠', '🌍', '🌺', '🌸', '🌷', '🌹', '🌻'
+                ];
+
+                const emojiGrid = document.getElementById('emojiGrid');
+                emojis.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.className = 'emoji-btn';
+                    btn.textContent = emoji;
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.lastSelectedSymbol = emoji;
+                        this.addElementToCenter(emoji);
+                    });
+                    emojiGrid.appendChild(btn);
+                });
+            }
+
+            exportLogo() {
+                try {
+                    const dataURL = this.canvas.toDataURL('image/png', 1.0);
+                    
+                    // Detectar si estamos en SketchWare
+                    if (typeof Android !== 'undefined' && Android.saveImage) {
+                        const base64Data = dataURL.split(',')[1];
+                        const fileName = 'logo_' + Date.now() + '.png';
+                        Android.saveImage(base64Data, fileName);
+                        this.showExportSuccess();
+                        return;
+                    }
+
+                    // Para navegadores normales: intentar descarga directa
+                    if (this.canDownloadDirectly()) {
+                        this.downloadImage(dataURL);
+                        this.showExportSuccess();
+                    } else {
+                        // Mostrar preview con opciones
+                        this.showImagePreview(dataURL);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error al exportar:', error);
+                    this.showExportError();
+                }
+            }
+
+            canDownloadDirectly() {
+                // Verificar si el navegador soporta descargas automáticas
+                return document.createElement('a').download !== undefined;
+            }
+
+            downloadImage(dataURL) {
+                const link = document.createElement('a');
+                link.download = `logo_${Date.now()}.png`;
+                link.href = dataURL;
+                
+                // Crear evento de click
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            showImagePreview(dataURL) {
+                // Crear overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'overlay';
+                
+                // Crear contenido del overlay
+                const img = document.createElement('img');
+                img.src = dataURL;
+                
+                const content = document.createElement('div');
+                content.className = 'overlay-content';
+                content.innerHTML = `
+                    <h3>🎉 ¡Tu logo está listo!</h3>
+                    <p>Elige cómo quieres guardarlo:</p>
+                `;
+                
+                const buttonContainer = document.createElement('div');
+                
+                // Botón de descarga (si es posible)
+                if (this.canDownloadDirectly()) {
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'overlay-button download';
+                    downloadBtn.textContent = '💾 Descargar';
+                    downloadBtn.onclick = () => {
+                        this.downloadImage(dataURL);
+                        document.body.removeChild(overlay);
+                        this.showExportSuccess();
+                    };
+                    buttonContainer.appendChild(downloadBtn);
+                }
+                
+                // Botón para compartir (API de compartir nativo si está disponible)
+                if (navigator.share) {
+                    const shareBtn = document.createElement('button');
+                    shareBtn.className = 'overlay-button';
+                    shareBtn.textContent = '📤 Compartir';
+                    shareBtn.onclick = async () => {
+                        try {
+                            // Convertir dataURL a blob
+                            const response = await fetch(dataURL);
+                            const blob = await response.blob();
+                            const file = new File([blob], `logo_${this.exportSize}x${this.exportSize}_${Date.now()}.png`, { type: 'image/png' });
+                            
+                            await navigator.share({
+                                files: [file],
+                                title: 'Mi Logo',
+                                text: 'Logo creado con Logo Maker'
+                            });
+                            
+                            document.body.removeChild(overlay);
+                        } catch (error) {
+                            console.error('Error al compartir:', error);
+                        }
+                    };
+                    buttonContainer.appendChild(shareBtn);
+                }
+                
+                // Instrucciones adicionales
+                const instructions = document.createElement('p');
+                instructions.style.cssText = 'margin: 20px 0; font-size: 12px; opacity: 0.8;';
+                instructions.innerHTML = '📱 También puedes mantener presionada la imagen para guardarla<br>🖼️ O tomar una captura de pantalla';
+                
+                // Botón cerrar
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'overlay-button';
+                closeBtn.textContent = '✕ Cerrar';
+                closeBtn.onclick = () => document.body.removeChild(overlay);
+                
+                // Ensamblar overlay
+                overlay.appendChild(img);
+                overlay.appendChild(content);
+                overlay.appendChild(buttonContainer);
+                overlay.appendChild(instructions);
+                overlay.appendChild(closeBtn);
+                
+                // Cerrar al hacer clic fuera
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                });
+                
+                document.body.appendChild(overlay);
+            }
+
+            showExportSuccess() {
+                const exportBtn = document.getElementById('exportBtn');
+                const originalText = exportBtn.textContent;
+                const originalStyle = exportBtn.style.background;
+                
+                exportBtn.textContent = '✅ ¡Guardado!';
+                exportBtn.style.background = 'linear-gradient(135deg, #34c759 0%, #30d158 100%)';
+                
+                if (navigator.vibrate) navigator.vibrate(100);
+                
+                setTimeout(() => {
+                    exportBtn.textContent = originalText;
+                    exportBtn.style.background = originalStyle || 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+                }, 3000);
+            }
+
+            showExportError() {
+                const exportBtn = document.getElementById('exportBtn');
+                const originalText = exportBtn.textContent;
+                const originalStyle = exportBtn.style.background;
+                
+                exportBtn.textContent = '❌ Error';
+                exportBtn.style.background = 'linear-gradient(135deg, #ff3b30 0%, #ff453a 100%)';
+                
+                setTimeout(() => {
+                    exportBtn.textContent = originalText;
+                    exportBtn.style.background = originalStyle || 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+                }, 3000);
+            }
+
+            clearCanvas() {
+                this.elements = [];
+                this.lastSelectedSymbol = null;
+                this.drawBackground();
+                
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                const clearBtn = document.getElementById('clearBtn');
+                clearBtn.classList.add('pulse');
+                setTimeout(() => clearBtn.classList.remove('pulse'), 300);
+            }
+        }
+
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', () => {
+            new LogoMaker();
+        });
+
+        // Prevenir zoom y scroll no deseado
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+
+        // Función global para que SketchWare pueda llamarla
+        function getLogoData() {
+            const canvas = document.getElementById('logoCanvas');
+            return canvas.toDataURL('image/png', 1.0);
+        }
+    </script>
+</body>
+</html>
