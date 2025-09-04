@@ -153,8 +153,31 @@
       <button class="undo-btn" id="undoBtn">↩️ Deshacer</button>
       <button class="clear-btn" id="clearBtn">🗑️ Limpiar</button>
     </div>
-  </div>
+
   <script>
+    
+    // Initialize WebApp
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
+
+    // Export logo to PNG
+    function exportLogo() {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        if (window.Telegram && Telegram.WebApp) {
+          // Open in a new tab
+          window.open(url, '_blank');
+        } else {
+          const link = document.createElement('a');
+          link.download = 'logo.png';
+          link.href = url;
+          link.click();
+        }
+      });
+    }
+
     class LogoMaker {
       constructor() {
         this.canvas = document.getElementById('logoCanvas');
@@ -269,8 +292,7 @@
       }
     }
     new LogoMaker();
+
   </script>
 </body>
 </html>
-
-   
